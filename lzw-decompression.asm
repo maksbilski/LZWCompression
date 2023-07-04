@@ -93,7 +93,7 @@ replace_newline_with_null:
 	# Write to file just opened
 	li   	a7, 64       # system call for write to file
 	mv   	a0, s6       # file descriptor
-	mv   	a1, s4   	# address of buffer from which to write
+	mv   	a1, s4   	 # address of buffer from which to write
 	sub	a2, s3, s4
 	ecall 
 	
@@ -117,11 +117,10 @@ replace_newline_with_null:
 # s5 - pointer to the beginning of the dictionary (will remain unchanged)
 # s11 - counter of processed bytes
 decode:
-	# store pointer to the beginning of dictionary in s5
-	mv 	s5, a3	# save pointer the beginning of dictionary in s5
+	mv 	s5, a3			# save pointer the beginning of dictionary in s5
 	lbu 	t0, (a1)	# load first byte from encoded file
 	lbu 	t1, 1(a1)	# load second byte from encoded file
-	addi	a1, a1, 1   	# increment pointer to the input buffer
+	addi	a1, a1, 1   # increment pointer to the input buffer
 	slli	t0, t0, 4
 	srli 	t1, t1, 4
 	or 	t0, t0, t1
@@ -134,7 +133,7 @@ decoding_loop:
 	beq 	s11, s6, finish
 	bnez	t5, process_odd_codeword
 	addi	s11, s11, 2
-	lbu	t1, (a1)	# load byte from input buffer
+	lbu	t1, (a1)		# load byte from input buffer
 	addi 	a1, a1, 1	# increment pointer to input buffer	
 	andi 	t2, t1, 0x000000f0
 	bnez 	t2, decode_from_dictionary_even
@@ -147,7 +146,7 @@ decoding_loop:
 	
 process_odd_codeword:
 	addi	s11, s11, 1
-	lbu	t1, (a1)	# load byte from input buffer
+	lbu	t1, (a1)		# load byte from input buffer
 	addi 	a1, a1, 2	# increment pointer to input buffer by two
 	andi 	t1, t1, 0x0000000f
 	bnez	t1, decode_from_dictionary_odd
@@ -158,7 +157,7 @@ store_byte_in_output_buffer:
 	sb	t1, (a2)
 	addi	a2, a2, 1
 	slli	t0, t0, 16	# make place for the byte we stored in encoded string register
-	or 	t0, t0, t1	# concatenate the byte we just stored in enccoded string register
+	or 	t0, t0, t1		# concatenate the byte we just stored in enccoded string register
 
 add_to_dictionary:
 	sw	t0, (a3)
@@ -182,14 +181,13 @@ decode_from_dictionary_odd:
 	
 store_pointer_to_beginning_of_decoded_word:
 	mv	t2, a2
-	mv      	s10, t1 # store t1, because later we will have to restore it to t0
+	mv      	s10, t1 		# store t1, because later we will have to restore it to t0
 
 decode_from_dictionary_loop:
-	addi   	s10, s10, -256 # w t1 mam teraz indeks w tablicy dekodowanego codeworda
+	addi   	s10, s10, -256 		
 	slli    	s10, s10, 2
 	add     	t3, s5, s10 
-	lw      	s10, (t3)     # za�aduj element wskazywany przez t3 (jest to element ze s�ownika) do rejestru s10 
-	sb      	s10, (a2)
+	lw      	s10, (t3)    
 	addi    	a2, a2, 1
 	srli    	s10, s10, 16
 	srli    	t4, s10, 8
