@@ -89,7 +89,7 @@ replace_newline_with_null:
 	# Write to file just opened
 	li   	a7, 64       # system call for write to file
 	mv   	a0, s6       # file descriptor
-	mv   	a1, s4   	# address of buffer from which to write
+	mv   	a1, s4   	 # address of buffer from which to write
 	sub	a2, s3, s4
 	ecall 
 	
@@ -114,29 +114,29 @@ replace_newline_with_null:
 # s5 - counter of processed bytes
 
 encode:
-	mv 	s11, a3		# s11 will be always pointing to the beginning of the dictionary
-	lbu 	t0, (a1)		# load the first byte from the input buffer to t0
-	li	s5, -1		# s5 will be a counter of processed bytes (initialize to -1)
-	li 	t5, 0 		# t5 will be indicating if we should store an even byte or odd byte
+	mv 	s11, a3					# s11 will be always pointing to the beginning of the dictionary
+	lbu 	t0, (a1)			# load the first byte from the input buffer to t0
+	li	s5, -1					# s5 will be a counter of processed bytes (initialize to -1)
+	li 	t5, 0 					# t5 will be indicating if we should store an even byte or odd byte
 encoding_loop:
-	addi	s5, s5, 1		# increment count of processed bytes
+	addi	s5, s5, 1			# increment count of processed bytes
 	beq 	s5, a0, encode_exit	# if count of processed bytes is equal to input file size, finish encoding
-	addi 	a1, a1, 1 		# increment input buffer pointer
-	lbu	t1, (a1)		# load byte from input buffer to t1
+	addi 	a1, a1, 1 			# increment input buffer pointer
+	lbu	t1, (a1)				# load byte from input buffer to t1
 	slli	t0, t0, 16 		
-	or	t0, t0, t1		# concatenate the new byte to the encoded string	
-	mv 	t1, s11		# load pointer to the beginning of the dictionary to t1
+	or	t0, t0, t1				# concatenate the new byte to the encoded string	
+	mv 	t1, s11					# load pointer to the beginning of the dictionary to t1
 		
 checking_if_word_in_dict:
 	beq 	t1, a3, word_is_not_in_dict
-	lw	t2, (t1)		# load element from the dictionary to t2
-	addi 	t1, t1, 4		# increment t1 so it's pointing to the next element of dictionary
+	lw	t2, (t1)				# load element from the dictionary to t2
+	addi 	t1, t1, 4			# increment t1 so it's pointing to the next element of dictionary
 	bne	t0, t2, checking_if_word_in_dict
 	
 word_is_in_dict:
-	sub 	t1, t1, s11		# compute how many bytes there are between begining of dictionary and position of found element
-	addi 	t1, t1, -4		# trzeba odj¹æ czwórkê bo wczeœniej niepotrzebnie j¹ dodaliœmy (do naprawy)
-	srli 	t1, t1, 2		# podziel przez 4, ¿eby t1, przechowywa³o liczbê elementów, a nie liczbê bajtów
+	sub 	t1, t1, s11			# compute how many bytes there are between begining of dictionary and position of found element
+	addi 	t1, t1, -4
+	srli 	t1, t1, 2		
 	addi 	t0, t1, 256
 	b 	encoding_loop
 	
